@@ -1,0 +1,17 @@
+{
+  "name": "Какашка Кликер",
+  "short_name": "💩 Кликер",
+  "description": "Тапай по какашке, зарабатывай какиши!",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#1a0a2e",
+  "theme_color": "#ff00ff",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💩</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

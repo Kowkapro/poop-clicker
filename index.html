@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a0a2e">
+<link rel="manifest" href="manifest.json">
+<title>💩 Какашка Кликер</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#1a0a2e;color:#fff}
+body{display:flex;flex-direction:column}
+@keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#app{flex:1;display:flex;flex-direction:column;background:linear-gradient(-45deg,#1a0a2e,#16213e,#0f3460,#1a0a2e,#2d1b69);background-size:400% 400%;animation:bgShift 20s ease infinite;position:relative;overflow:hidden}
+.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px 15px 10px;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:flex}
+/* Top bar */
+#topbar{text-align:center;padding:12px 10px 8px;background:rgba(0,0,0,.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;z-index:10}
+#topbar .coins{font-size:28px;font-weight:900;background:linear-gradient(90deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 0 8px rgba(255,215,0,.5))}
+#topbar .per-sec{font-size:13px;color:#aaa;margin-top:2px}
+/* Poop area */
+#game-screen{align-items:center;justify-content:center;position:relative}
+#poop-container{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#poop{font-size:140px;line-height:1;transition:transform .08s ease;filter:drop-shadow(0 0 20px rgba(255,165,0,.4));position:relative;z-index:2}
+#poop.tapped{transform:scale(.88)}
+#poop.crit{animation:critFlash .3s ease}
+@keyframes critFlash{0%{filter:drop-shadow(0 0 20px rgba(255,165,0,.4))}50%{filter:drop-shadow(0 0 40px rgba(255,0,0,.9)) brightness(1.5)}100%{filter:drop-shadow(0 0 20px rgba(255,165,0,.4))}}
+/* Cosmetics on poop */
+#poop-hat{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:50px;z-index:5;pointer-events:none}
+#poop-glasses{position:absolute;top:55px;left:50%;transform:translateX(-50%);font-size:35px;z-index:5;pointer-events:none}
+#poop-costume{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:35px;z-index:1;pointer-events:none}
+#poop-item{position:absolute;top:50%;right:-30px;transform:translateY(-50%);font-size:40px;z-index:5;pointer-events:none}
+#poop-shoes{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:30px;z-index:1;pointer-events:none}
+/* Floating text */
+.float-text{position:absolute;pointer-events:none;font-weight:900;font-size:22px;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8);animation:floatUp .8s ease-out forwards;z-index:100}
+.float-text.crit{font-size:32px;color:#ff4444;text-shadow:0 0 15px rgba(255,0,0,.8)}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-100px) scale(.6)}}
+/* Particle */
+.particle{position:absolute;pointer-events:none;font-size:20px;animation:particleFly .6s ease-out forwards;z-index:99}
+@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0)}}
+/* Golden poop */
+#golden-poop{position:absolute;font-size:60px;z-index:50;cursor:pointer;animation:goldenFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 15px gold);display:none}
+@keyframes goldenFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
+/* Nav */
+#nav{display:flex;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.1);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.nav-btn{flex:1;text-align:center;padding:8px 4px;font-size:11px;color:#888;border:none;background:none;cursor:pointer;transition:color .2s}
+.nav-btn.active{color:#ff00ff}
+.nav-btn .icon{font-size:22px;display:block;margin-bottom:2px}
+/* Upgrade cards */
+.upgrade-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all .2s;position:relative;overflow:hidden}
+.upgrade-card.affordable{border-color:rgba(0,255,100,.3);box-shadow:0 0 15px rgba(0,255,100,.1)}
+.upgrade-card .emoji{font-size:36px;flex-shrink:0}
+.upgrade-card .info{flex:1;min-width:0}
+.upgrade-card .name{font-size:14px;font-weight:700}
+.upgrade-card .desc{font-size:11px;color:#aaa;margin-top:2px}
+.upgrade-card .cost{font-size:13px;color:#ffd700;margin-top:4px;font-weight:700}
+.upgrade-card .level{position:absolute;top:8px;right:10px;font-size:11px;color:#888;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:10px}
+.section-title{font-size:16px;font-weight:800;margin:15px 0 8px;padding-left:5px;color:#ff00ff;text-transform:uppercase;letter-spacing:1px}
+.section-title:first-child{margin-top:5px}
+/* Wardrobe */
+.wardrobe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ward-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.ward-item .wi-emoji{font-size:32px}
+.ward-item .wi-name{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ward-item .wi-cost{font-size:11px;color:#ffd700;margin-top:2px}
+.ward-item.owned{border-color:rgba(0,255,100,.4);background:rgba(0,255,100,.08)}
+.ward-item.equipped{border-color:#ff00ff;box-shadow:0 0 12px rgba(255,0,255,.3);background:rgba(255,0,255,.1)}
+.ward-item.affordable:not(.owned){border-color:rgba(255,215,0,.4)}
+/* Stats */
+.stat-row{display:flex;justify-content:space-between;padding:12px 8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.stat-label{color:#aaa;font-size:14px}
+.stat-value{font-weight:700;font-size:14px;color:#ffd700}
+/* Prestige */
+#prestige-btn{display:none;margin:15px auto;padding:14px 30px;background:linear-gradient(135deg,#ff00ff,#8b00ff);border:none;border-radius:30px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 0 25px rgba(255,0,255,.4);animation:prestigePulse 2s ease-in-out infinite}
+@keyframes prestigePulse{0%,100%{box-shadow:0 0 25px rgba(255,0,255,.4)}50%{box-shadow:0 0 40px rgba(255,0,255,.7)}}
+/* Mute btn */
+#mute-btn{position:absolute;top:12px;right:12px;z-index:20;background:rgba(0,0,0,.4);border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;color:#fff;backdrop-filter:blur(5px)}
+/* Skin overlays */
+.skin-golden #poop{filter:drop-shadow(0 0 20px gold) saturate(2) brightness(1.2) sepia(1) hue-rotate(10deg)}
+.skin-rainbow #poop{animation:rainbowHue 2s linear infinite}
+@keyframes rainbowHue{0%{filter:drop-shadow(0 0 20px red) hue-rotate(0deg)}100%{filter:drop-shadow(0 0 20px red) hue-rotate(360deg)}}
+.skin-neon #poop{filter:drop-shadow(0 0 30px #0ff) drop-shadow(0 0 15px #f0f) brightness(1.3)}
+.skin-diamond #poop{filter:drop-shadow(0 0 25px #88f) brightness(1.4) contrast(1.1);animation:diamondSparkle 1.5s ease-in-out infinite}
+@keyframes diamondSparkle{0%,100%{filter:drop-shadow(0 0 25px #88f) brightness(1.4)}50%{filter:drop-shadow(0 0 35px #fff) brightness(1.7)}}
+/* Offline modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(5px)}
+.modal{background:#1e1040;border:2px solid #ff00ff;border-radius:20px;padding:25px;text-align:center;max-width:300px;width:90%}
+.modal h2{font-size:20px;margin-bottom:10px}
+.modal .amount{font-size:28px;color:#ffd700;font-weight:900;margin:10px 0}
+.modal button{padding:12px 30px;background:linear-gradient(135deg,#ff00ff,#8b00ff);border:none;border-radius:20px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="coins" id="coin-display">0 💰</div>
+    <div class="per-sec" id="per-sec-display">0/сек</div>
+  </div>
+  <button id="mute-btn" onclick="toggleMute()">🔊</button>
+
+  <!-- Game Screen -->
+  <div class="screen active" id="game-screen">
+    <div id="poop-container" ontouchstart="handleTap(event)" onmousedown="handleTap(event)">
+      <div id="poop-hat"></div>
+      <div id="poop-glasses"></div>
+      <div id="poop">💩</div>
+      <div id="poop-costume"></div>
+      <div id="poop-item"></div>
+      <div id="poop-shoes"></div>
+    </div>
+    <div id="golden-poop" ontouchstart="collectGolden(event)" onclick="collectGolden(event)">✨💩✨</div>
+    <button id="prestige-btn" onclick="doPrestige()">🔄 Перерождение (+50% множитель)</button>
+  </div>
+
+  <!-- Upgrades Screen -->
+  <div class="screen" id="upgrade-screen"></div>
+
+  <!-- Wardrobe Screen -->
+  <div class="screen" id="wardrobe-screen"></div>
+
+  <!-- Stats Screen -->
+  <div class="screen" id="stats-screen"></div>
+
+  <!-- Nav -->
+  <div id="nav">
+    <div class="nav-btn active" onclick="showScreen('game')"><span class="icon">🏠</span>Игра</div>
+    <div class="nav-btn" onclick="showScreen('upgrade')"><span class="icon">📈</span>Улучшения</div>
+    <div class="nav-btn" onclick="showScreen('wardrobe')"><span class="icon">👔</span>Гардероб</div>
+    <div class="nav-btn" onclick="showScreen('stats')"><span class="icon">📊</span>Статистика</div>
+  </div>
+</div>
+
+<script>
+// ===== GAME STATE =====
+const defaultState = () => ({
+  coins: 0,
+  totalEarned: 0,
+  totalTaps: 0,
+  startTime: Date.now(),
+  lastSave: Date.now(),
+  prestigeCount: 0,
+  prestigeMulti: 1,
+  upgrades: {},
+  wardrobe: { owned: {}, equipped: {} },
+  skinClass: ''
+});
+let S = defaultState();
+
+// ===== AUDIO =====
+let audioCtx = null;
+let muted = false;
+let musicGain = null;
+let musicStarted = false;
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playPop() {
+  if (muted || !audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(800, audioCtx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+  g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + 0.15);
+}
+
+function playCrit() {
+  if (muted || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  [400, 600, 900].forEach((f, i) => {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(f, t + i * 0.05);
+    g.gain.setValueAtTime(0.2, t + i * 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t + i * 0.05);
+    o.stop(t + 0.35);
+  });
+}
+
+function playBuy() {
+  if (muted || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  [1200, 1500, 1800].forEach((f, i) => {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t + i * 0.08);
+    g.gain.setValueAtTime(0.15, t + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.25 + i * 0.08);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t + i * 0.08);
+    o.stop(t + 0.35);
+  });
+}
+
+function startMusic() {
+  if (musicStarted || !audioCtx) return;
+  musicStarted = true;
+  musicGain = audioCtx.createGain();
+  musicGain.gain.value = muted ? 0 : 0.06;
+  musicGain.connect(audioCtx.destination);
+  const bassNotes = [55, 55, 73.4, 65.4, 55, 55, 73.4, 82.4];
+  let step = 0;
+  function playStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    // Bass
+    const bo = audioCtx.createOscillator();
+    const bg = audioCtx.createGain();
+    bo.type = 'sawtooth';
+    bo.frequency.value = bassNotes[step % bassNotes.length];
+    bg.gain.setValueAtTime(0.12, t);
+    bg.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    bo.connect(bg).connect(musicGain);
+    bo.start(t);
+    bo.stop(t + 0.22);
+    // Hi-hat
+    if (step % 2 === 0) {
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      const n = audioCtx.createBufferSource();
+      const ng = audioCtx.createGain();
+      n.buffer = buf;
+      ng.gain.value = 0.08;
+      n.connect(ng).connect(musicGain);
+      n.start(t);
+    }
+    step++;
+    setTimeout(playStep, 220);
+  }
+  playStep();
+}
+
+function toggleMute() {
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  if (musicGain) musicGain.gain.value = muted ? 0 : 0.06;
+}
+
+// ===== UPGRADES DEF =====
+const UPGRADES = [
+  // Tap
+  { id: 'tap_power', emoji: '💪', name: 'Сила тапа', desc: '+1 за тап', section: 'tap', baseCost: 10, scaling: 1.15 },
+  { id: 'multi_tap', emoji: '⚡', name: 'Мульти-тап', desc: 'Множитель тапа', section: 'tap', baseCost: 500, scaling: 1.15 },
+  { id: 'crit_tap', emoji: '💥', name: 'Критический тап', desc: 'Шанс x5 крита', section: 'tap', baseCost: 1000, scaling: 1.15 },
+  { id: 'auto_click', emoji: '🎯', name: 'Авто-кликер', desc: 'Авто-тапов/сек', section: 'tap', baseCost: 200, scaling: 1.15 },
+  // Passive
+  { id: 'factory', emoji: '🏭', name: 'Какашечная фабрика', desc: '+10/мин', section: 'passive', baseCost: 500, scaling: 1.15, perMin: 10 },
+  { id: 'empire', emoji: '🌍', name: 'Какашечная империя', desc: '+100/мин', section: 'passive', baseCost: 5000, scaling: 1.15, perMin: 100 },
+  { id: 'cosmic', emoji: '🚀', name: 'Космическая какашка', desc: '+1000/мин', section: 'passive', baseCost: 50000, scaling: 1.15, perMin: 1000 },
+  { id: 'universe', emoji: '🌌', name: 'Какашечная вселенная', desc: '+10000/мин', section: 'passive', baseCost: 500000, scaling: 1.15, perMin: 10000 },
+  // Bonus
+  { id: 'lucky', emoji: '🍀', name: 'Удачливая какашка', desc: 'Золотая какашка x50', section: 'bonus', baseCost: 2000, scaling: 1.15 },
+  { id: 'diamond', emoji: '💎', name: 'Алмазная какашка', desc: 'Шанс бонуса x100', section: 'bonus', baseCost: 10000, scaling: 1.15 },
+];
+
+function getLevel(id) { return S.upgrades[id] || 0; }
+function getCost(u) { return Math.floor(u.baseCost * Math.pow(u.scaling, getLevel(u.id))); }
+
+// ===== WARDROBE DEF =====
+const WARDROBE = {
+  hat: [
+    { id: 'cap', emoji: '🧢', name: 'Кепка', cost: 100 },
+    { id: 'tophat', emoji: '🎩', name: 'Цилиндр', cost: 500 },
+    { id: 'crown', emoji: '👑', name: 'Корона', cost: 5000 },
+    { id: 'halo', emoji: '😇', name: 'Нимб', cost: 50000 },
+  ],
+  glasses: [
+    { id: 'glasses', emoji: '👓', name: 'Очки', cost: 200 },
+    { id: 'sunglasses', emoji: '😎', name: 'Солнцезащитные', cost: 800 },
+    { id: 'monocle', emoji: '🧐', name: 'Монокль', cost: 3000 },
+    { id: 'vr', emoji: '🥽', name: 'VR', cost: 20000 },
+  ],
+  costume: [
+    { id: 'tshirt', emoji: '👕', name: 'Футболка', cost: 300 },
+    { id: 'tuxedo', emoji: '🤵', name: 'Смокинг', cost: 2000 },
+    { id: 'armor', emoji: '🛡️', name: 'Доспехи', cost: 15000 },
+    { id: 'spacesuit', emoji: '🧑‍🚀', name: 'Скафандр', cost: 100000 },
+  ],
+  item: [
+    { id: 'wand', emoji: '🪄', name: 'Палочка', cost: 150 },
+    { id: 'sword', emoji: '⚔️', name: 'Меч', cost: 1000 },
+    { id: 'staff', emoji: '🔱', name: 'Посох', cost: 8000 },
+    { id: 'lightsaber', emoji: '🗡️', name: 'Световой меч', cost: 50000 },
+  ],
+  skin: [
+    { id: 'golden', emoji: '🌟', name: 'Золотая', cost: 10000, skinClass: 'skin-golden' },
+    { id: 'rainbow', emoji: '🌈', name: 'Радужная', cost: 25000, skinClass: 'skin-rainbow' },
+    { id: 'neon', emoji: '💜', name: 'Неоновая', cost: 50000, skinClass: 'skin-neon' },
+    { id: 'diamond_skin', emoji: '💎', name: 'Алмазная', cost: 200000, skinClass: 'skin-diamond' },
+  ],
+  shoes: [
+    { id: 'sneakers', emoji: '👟', name: 'Кроссовки', cost: 100 },
+    { id: 'boots', emoji: '🥾', name: 'Сапоги', cost: 500 },
+    { id: 'rollers', emoji: '⛸️', name: 'Ролики', cost: 2000 },
+  ],
+};
+
+const WARD_LABELS = { hat: '🎩 Шляпы', glasses: '😎 Очки', costume: '👕 Костюмы', item: '🗡️ Предметы', skin: '🎨 Скины', shoes: '👟 Обувь' };
+
+// ===== COMPUTED =====
+function tapPower() {
+  let base = 1 + getLevel('tap_power');
+  let multi = 1 + getLevel('multi_tap');
+  return Math.floor(base * multi * S.prestigeMulti);
+}
+
+function critChance() { return getLevel('crit_tap') * 0.05 + (getLevel('crit_tap') > 0 ? 0.05 : 0); }
+function critMulti() { return 5; }
+
+function passivePerSec() {
+  let ppm = 0;
+  UPGRADES.filter(u => u.perMin).forEach(u => { ppm += (u.perMin * getLevel(u.id)); });
+  return (ppm / 60) * S.prestigeMulti;
+}
+
+function autoClicksPerSec() { return getLevel('auto_click'); }
+
+function totalPerSec() {
+  return passivePerSec() + autoClicksPerSec() * tapPower();
+}
+
+// ===== FORMAT =====
+function fmt(n) {
+  n = Math.floor(n);
+  if (n < 1000) return n.toString();
+  if (n < 1e6) return (n / 1e3).toFixed(1) + 'K';
+  if (n < 1e9) return (n / 1e6).toFixed(1) + 'M';
+  if (n < 1e12) return (n / 1e9).toFixed(1) + 'B';
+  return (n / 1e12).toFixed(1) + 'T';
+}
+
+function fmtTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${h}ч ${m}м`;
+}
+
+// ===== TAP =====
+function handleTap(e) {
+  e.preventDefault();
+  initAudio();
+  if (!musicStarted) startMusic();
+
+  const el = document.getElementById('poop');
+  el.classList.remove('tapped', 'crit');
+  void el.offsetWidth;
+
+  let amount = tapPower();
+  let isCrit = Math.random() < critChance();
+  if (isCrit) {
+    amount *= critMulti();
+    el.classList.add('crit');
+    playCrit();
+  } else {
+    playPop();
+  }
+  el.classList.add('tapped');
+  setTimeout(() => el.classList.remove('tapped'), 80);
+
+  S.coins += amount;
+  S.totalEarned += amount;
+  S.totalTaps++;
+
+  // Float text
+  const rect = document.getElementById('poop-container').getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  spawnFloat(touch.clientX || rect.left + rect.width / 2, touch.clientY || rect.top, amount, isCrit);
+  spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+  updateDisplay();
+}
+
+function spawnFloat(x, y, amount, isCrit) {
+  const el = document.createElement('div');
+  el.className = 'float-text' + (isCrit ? ' crit' : '');
+  el.textContent = '+' + fmt(amount);
+  el.style.left = (x - 30 + Math.random() * 20) + 'px';
+  el.style.top = (y - 20) + 'px';
+  document.getElementById('app').appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+function spawnParticles(cx, cy) {
+  const emojis = ['💩', '✨', '💰', '⭐'];
+  for (let i = 0; i < 4; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 50 + Math.random() * 60;
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--py', Math.sin(angle) * dist + 'px');
+    document.getElementById('app').appendChild(p);
+    setTimeout(() => p.remove(), 600);
+  }
+}
+
+// ===== GOLDEN POOP =====
+let goldenTimeout = null;
+function spawnGolden() {
+  if (getLevel('lucky') === 0) return;
+  const gp = document.getElementById('golden-poop');
+  const gs = document.getElementById('game-screen');
+  gp.style.display = 'block';
+  gp.style.left = (20 + Math.random() * (window.innerWidth - 100)) + 'px';
+  gp.style.top = (80 + Math.random() * (gs.clientHeight - 150)) + 'px';
+  clearTimeout(goldenTimeout);
+  goldenTimeout = setTimeout(() => { gp.style.display = 'none'; }, 5000);
+}
+
+function collectGolden(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const gp = document.getElementById('golden-poop');
+  gp.style.display = 'none';
+  let bonus = tapPower() * 50 * (1 + getLevel('diamond') * 2);
+  S.coins += bonus;
+  S.totalEarned += bonus;
+  playBuy();
+  const rect = gp.getBoundingClientRect();
+  spawnFloat(rect.left, rect.top, bonus, true);
+  updateDisplay();
+}
+
+setInterval(() => {
+  if (getLevel('lucky') > 0 && Math.random() < 0.1 * getLevel('lucky')) spawnGolden();
+}, 10000);
+
+// ===== SCREENS =====
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(name + '-screen').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['game', 'upgrade', 'wardrobe', 'stats'][i] === name);
+  });
+  if (name === 'upgrade') renderUpgrades();
+  if (name === 'wardrobe') renderWardrobe();
+  if (name === 'stats') renderStats();
+}
+
+// ===== RENDER UPGRADES =====
+function renderUpgrades() {
+  const c = document.getElementById('upgrade-screen');
+  let html = '';
+  const sections = { tap: '💪 Улучшения тапа', passive: '🏭 Пассивный доход', bonus: '🍀 Бонусы' };
+  for (const [sec, title] of Object.entries(sections)) {
+    html += `<div class="section-title">${title}</div>`;
+    UPGRADES.filter(u => u.section === sec).forEach(u => {
+      const lvl = getLevel(u.id);
+      const cost = getCost(u);
+      const affordable = S.coins >= cost;
+      let detail = u.desc;
+      if (u.id === 'tap_power') detail = `+${lvl + 1} за тап (сейчас +${lvl})`;
+      if (u.id === 'multi_tap') detail = `x${lvl + 2} множитель (сейчас x${lvl + 1})`;
+      if (u.id === 'crit_tap') detail = `${Math.round((lvl + 1) * 5 + 5)}% шанс x5 (сейчас ${lvl > 0 ? Math.round(lvl * 5 + 5) : 0}%)`;
+      if (u.id === 'auto_click') detail = `${lvl + 1} тап/сек (сейчас ${lvl})`;
+      if (u.perMin) detail = `+${u.perMin * (lvl + 1)}/мин (сейчас +${u.perMin * lvl}/мин)`;
+      if (u.id === 'lucky') detail = `Чаще золотая какашка (ур. ${lvl})`;
+      if (u.id === 'diamond') detail = `x${3 + lvl * 2} бонус золотой (ур. ${lvl})`;
+      html += `<div class="upgrade-card${affordable ? ' affordable' : ''}" onclick="buyUpgrade('${u.id}')">
+        <div class="emoji">${u.emoji}</div>
+        <div class="info"><div class="name">${u.name}</div><div class="desc">${detail}</div><div class="cost">💰 ${fmt(cost)}</div></div>
+        <div class="level">Ур. ${lvl}</div></div>`;
+    });
+  }
+  c.innerHTML = html;
+}
+
+function buyUpgrade(id) {
+  const u = UPGRADES.find(u => u.id === id);
+  const cost = getCost(u);
+  if (S.coins < cost) return;
+  S.coins -= cost;
+  S.upgrades[id] = (S.upgrades[id] || 0) + 1;
+  playBuy();
+  renderUpgrades();
+  updateDisplay();
+}
+
+// ===== RENDER WARDROBE =====
+function renderWardrobe() {
+  const c = document.getElementById('wardrobe-screen');
+  let html = '';
+  for (const [cat, items] of Object.entries(WARDROBE)) {
+    html += `<div class="section-title">${WARD_LABELS[cat]}</div><div class="wardrobe-grid">`;
+    items.forEach(item => {
+      const owned = S.wardrobe.owned[item.id];
+      const equipped = S.wardrobe.equipped[cat] === item.id;
+      const affordable = !owned && S.coins >= item.cost;
+      let cls = 'ward-item';
+      if (equipped) cls += ' equipped';
+      else if (owned) cls += ' owned';
+      else if (affordable) cls += ' affordable';
+      html += `<div class="${cls}" onclick="wardAction('${cat}','${item.id}',${item.cost})">
+        <div class="wi-emoji">${item.emoji}</div>
+        <div class="wi-name">${item.name}</div>
+        <div class="wi-cost">${owned ? (equipped ? '✅ Надето' : '👆 Надеть') : '💰 ' + fmt(item.cost)}</div></div>`;
+    });
+    html += '</div>';
+  }
+  c.innerHTML = html;
+}
+
+function wardAction(cat, id, cost) {
+  if (S.wardrobe.owned[id]) {
+    // Toggle equip
+    if (S.wardrobe.equipped[cat] === id) {
+      delete S.wardrobe.equipped[cat];
+      if (cat === 'skin') { S.skinClass = ''; document.getElementById('poop-container').className = ''; }
+    } else {
+      S.wardrobe.equipped[cat] = id;
+      if (cat === 'skin') {
+        const item = WARDROBE.skin.find(i => i.id === id);
+        S.skinClass = item.skinClass;
+        document.getElementById('poop-container').className = item.skinClass;
+      }
+    }
+  } else if (S.coins >= cost) {
+    S.coins -= cost;
+    S.wardrobe.owned[id] = true;
+    S.wardrobe.equipped[cat] = id;
+    if (cat === 'skin') {
+      const item = WARDROBE.skin.find(i => i.id === id);
+      S.skinClass = item.skinClass;
+      document.getElementById('poop-container').className = item.skinClass;
+    }
+    playBuy();
+  }
+  updateCosmetics();
+  renderWardrobe();
+  updateDisplay();
+}
+
+function updateCosmetics() {
+  const eq = S.wardrobe.equipped;
+  const getEmoji = (cat) => {
+    if (!eq[cat]) return '';
+    const items = WARDROBE[cat];
+    const item = items.find(i => i.id === eq[cat]);
+    return item ? item.emoji : '';
+  };
+  document.getElementById('poop-hat').textContent = getEmoji('hat');
+  document.getElementById('poop-glasses').textContent = getEmoji('glasses');
+  document.getElementById('poop-costume').textContent = getEmoji('costume');
+  document.getElementById('poop-item').textContent = getEmoji('item');
+  document.getElementById('poop-shoes').textContent = getEmoji('shoes');
+  if (S.skinClass) {
+    document.getElementById('poop-container').className = S.skinClass;
+  } else {
+    document.getElementById('poop-container').className = '';
+  }
+}
+
+// ===== RENDER STATS =====
+function renderStats() {
+  const c = document.getElementById('stats-screen');
+  const elapsed = Date.now() - S.startTime;
+  c.innerHTML = `
+    <div class="section-title">📊 Статистика</div>
+    <div class="stat-row"><span class="stat-label">Всего какишей</span><span class="stat-value">${fmt(S.totalEarned)}</span></div>
+    <div class="stat-row"><span class="stat-label">Текущий баланс</span><span class="stat-value">${fmt(S.coins)}</span></div>
+    <div class="stat-row"><span class="stat-label">Всего тапов</span><span class="stat-value">${fmt(S.totalTaps)}</span></div>
+    <div class="stat-row"><span class="stat-label">Сила тапа</span><span class="stat-value">${fmt(tapPower())}</span></div>
+    <div class="stat-row"><span class="stat-label">Шанс крита</span><span class="stat-value">${Math.round(critChance() * 100)}%</span></div>
+    <div class="stat-row"><span class="stat-label">Доход/сек</span><span class="stat-value">${fmt(totalPerSec())}/с</span></div>
+    <div class="stat-row"><span class="stat-label">Пассивный/мин</span><span class="stat-value">${fmt(passivePerSec() * 60)}/м</span></div>
+    <div class="stat-row"><span class="stat-label">Авто-клик</span><span class="stat-value">${autoClicksPerSec()}/с</span></div>
+    <div class="stat-row"><span class="stat-label">Время игры</span><span class="stat-value">${fmtTime(elapsed)}</span></div>
+    <div class="stat-row"><span class="stat-label">Перерождений</span><span class="stat-value">${S.prestigeCount}</span></div>
+    <div class="stat-row"><span class="stat-label">Множитель престижа</span><span class="stat-value">x${S.prestigeMulti.toFixed(2)}</span></div>
+  `;
+}
+
+// ===== PRESTIGE =====
+function checkPrestige() {
+  const btn = document.getElementById('prestige-btn');
+  btn.style.display = S.totalEarned >= 1000000 ? 'block' : 'none';
+}
+
+function doPrestige() {
+  if (S.totalEarned < 1000000) return;
+  if (!confirm('🔄 Перерождение!\n\nСбросить прогресс (кроме гардероба) и получить +50% множитель навсегда?')) return;
+  S.prestigeCount++;
+  S.prestigeMulti += 0.5;
+  const wardrobe = JSON.parse(JSON.stringify(S.wardrobe));
+  const skinClass = S.skinClass;
+  const prestigeCount = S.prestigeCount;
+  const prestigeMulti = S.prestigeMulti;
+  const startTime = S.startTime;
+  S = defaultState();
+  S.wardrobe = wardrobe;
+  S.skinClass = skinClass;
+  S.prestigeCount = prestigeCount;
+  S.prestigeMulti = prestigeMulti;
+  S.startTime = startTime;
+  updateCosmetics();
+  updateDisplay();
+  saveGame();
+}
+
+// ===== DISPLAY UPDATE =====
+function updateDisplay() {
+  document.getElementById('coin-display').textContent = fmt(S.coins) + ' 💰';
+  document.getElementById('per-sec-display').textContent = fmt(totalPerSec()) + '/сек';
+  checkPrestige();
+}
+
+// ===== GAME LOOP =====
+let lastTick = Date.now();
+function gameLoop() {
+  const now = Date.now();
+  const dt = (now - lastTick) / 1000;
+  lastTick = now;
+
+  // Passive income
+  const passive = passivePerSec() * dt;
+  if (passive > 0) {
+    S.coins += passive;
+    S.totalEarned += passive;
+  }
+
+  // Auto clicker
+  const auto = autoClicksPerSec() * dt * tapPower();
+  if (auto > 0) {
+    S.coins += auto;
+    S.totalEarned += auto;
+    S.totalTaps += Math.floor(autoClicksPerSec() * dt);
+  }
+
+  updateDisplay();
+  requestAnimationFrame(gameLoop);
+}
+
+// ===== SAVE/LOAD =====
+function saveGame() {
+  S.lastSave = Date.now();
+  try {
+    localStorage.setItem('poop_clicker_save', JSON.stringify(S));
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const data = localStorage.getItem('poop_clicker_save');
+    if (!data) return;
+    const saved = JSON.parse(data);
+    S = { ...defaultState(), ...saved };
+    if (!S.wardrobe.owned) S.wardrobe.owned = {};
+    if (!S.wardrobe.equipped) S.wardrobe.equipped = {};
+
+    // Offline earnings
+    const offlineTime = (Date.now() - S.lastSave) / 1000;
+    if (offlineTime > 60) {
+      // Recalculate passive per sec from saved state
+      let ppm = 0;
+      UPGRADES.filter(u => u.perMin).forEach(u => {
+        ppm += (u.perMin * (S.upgrades[u.id] || 0));
+      });
+      const offlinePerSec = (ppm / 60) * S.prestigeMulti;
+      const earned = Math.floor(offlinePerSec * offlineTime);
+      if (earned > 0) {
+        S.coins += earned;
+        S.totalEarned += earned;
+        showOfflineModal(earned, offlineTime);
+      }
+    }
+
+    updateCosmetics();
+    updateDisplay();
+  } catch(e) {}
+}
+
+function showOfflineModal(earned, seconds) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h2>🌙 Добро пожаловать!</h2>
+    <p>Пока тебя не было (${fmtTime(seconds * 1000)}):</p>
+    <div class="amount">+${fmt(earned)} 💰</div>
+    <button onclick="this.closest('.modal-overlay').remove()">Забрать!</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+// ===== INIT =====
+loadGame();
+updateDisplay();
+requestAnimationFrame(gameLoop);
+setInterval(saveGame, 30000);
+
+// PWA service worker registration (basic)
+if ('serviceWorker' in navigator) {
+  // No SW file needed for basic PWA install prompt
+}
+</script>
+</body>
+</html>
