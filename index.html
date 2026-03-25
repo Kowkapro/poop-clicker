@@ -137,7 +137,7 @@ body{display:flex;flex-direction:column}
 
   <!-- Game Screen -->
   <div class="screen active" id="game-screen">
-    <div id="poop-container">
+    <div id="poop-container" ontouchstart="handleTap(event)" onmousedown="handleTap(event)">
       <svg id="poop-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <!-- Base gradient -->
@@ -280,7 +280,7 @@ body{display:flex;flex-direction:column}
         <g id="svg-hat" style="display:none"></g>
       </svg>
     </div>
-    <div id="golden-poop">✨💩✨</div>
+    <div id="golden-poop" ontouchstart="collectGolden(event)" onclick="collectGolden(event)">✨💩✨</div>
     <button id="prestige-btn" onclick="doPrestige()">🔄 Перерождение (+50% множитель)</button>
   </div>
 
@@ -727,8 +727,7 @@ function fmtTime(ms) {
 
 // ===== TAP =====
 function handleTap(e) {
-  if (e) e.preventDefault();
-  if (e && e.stopPropagation) e.stopPropagation();
+  e.preventDefault();
   initAudio();
   if (!musicStarted) startMusic();
 
@@ -1056,24 +1055,7 @@ setInterval(saveGame, 15000);
 window.addEventListener('beforeunload', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
 
-// Reliable tap/click handlers (works in Telegram WebView)
-(function() {
-  const pc = document.getElementById('poop-container');
-  let lastTouchTime = 0;
-  pc.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    lastTouchTime = Date.now();
-    handleTap(e);
-  }, { passive: false });
-  pc.addEventListener('mousedown', function(e) {
-    if (Date.now() - lastTouchTime < 400) return; // skip if touch already fired
-    handleTap(e);
-  });
 
-  const gp = document.getElementById('golden-poop');
-  gp.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); collectGolden(e); }, { passive: false });
-  gp.addEventListener('click', function(e) { collectGolden(e); });
-})();
 
 if ('serviceWorker' in navigator) {
   // No SW file needed for basic PWA install prompt
