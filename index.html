@@ -8,59 +8,17 @@
 <meta name="theme-color" content="#0a0015">
 <link rel="manifest" href="manifest.json">
 <title>💩 Какашка Кликер</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#0a0015;color:#fff}
 body{display:flex;flex-direction:column}
 
-/* ===== ANIMATED CYBERPUNK BACKGROUND ===== */
-#app{flex:1;display:flex;flex-direction:column;background:#0a0015;position:relative;overflow:hidden}
-
-/* Grid layer */
-.bg-grid{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-.bg-grid::before{
-  content:'';position:absolute;inset:-50%;
-  background:
-    linear-gradient(rgba(255,0,255,.07) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,0,255,.07) 1px,transparent 1px);
-  background-size:60px 60px;
-  animation:gridMove 20s linear infinite;
-  transform:perspective(500px) rotateX(60deg);
-  transform-origin:center center;
-}
-@keyframes gridMove{0%{background-position:0 0}100%{background-position:60px 60px}}
-
-/* Floating shapes */
-.bg-shapes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg-shape{position:absolute;border:1px solid;border-radius:2px;opacity:0;animation:shapeFloat linear infinite}
-.bg-shape:nth-child(1){width:30px;height:30px;border-color:rgba(255,0,255,.15);left:10%;animation-duration:15s;animation-delay:0s}
-.bg-shape:nth-child(2){width:20px;height:20px;border-color:rgba(0,255,255,.12);left:30%;animation-duration:18s;animation-delay:2s;border-radius:50%}
-.bg-shape:nth-child(3){width:40px;height:40px;border-color:rgba(0,255,100,.1);left:55%;animation-duration:22s;animation-delay:5s;transform:rotate(45deg)}
-.bg-shape:nth-child(4){width:15px;height:15px;border-color:rgba(255,100,0,.12);left:75%;animation-duration:16s;animation-delay:8s;border-radius:50%}
-.bg-shape:nth-child(5){width:25px;height:25px;border-color:rgba(100,100,255,.15);left:90%;animation-duration:20s;animation-delay:3s}
-.bg-shape:nth-child(6){width:35px;height:35px;border-color:rgba(255,0,255,.1);left:45%;animation-duration:25s;animation-delay:7s;border-radius:50%}
-.bg-shape:nth-child(7){width:18px;height:18px;border-color:rgba(0,255,200,.12);left:20%;animation-duration:17s;animation-delay:10s;transform:rotate(30deg)}
-.bg-shape:nth-child(8){width:22px;height:22px;border-color:rgba(255,50,150,.1);left:65%;animation-duration:19s;animation-delay:1s}
-@keyframes shapeFloat{
-  0%{transform:translateY(110vh) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  90%{opacity:1}
-  100%{transform:translateY(-10vh) rotate(360deg);opacity:0}
-}
-
-/* Glow orbs */
-.bg-orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:.3}
-.bg-orb:nth-child(1){width:300px;height:300px;background:rgba(139,0,255,.4);top:-50px;left:-50px;animation:orbPulse1 8s ease-in-out infinite}
-.bg-orb:nth-child(2){width:250px;height:250px;background:rgba(255,0,100,.3);bottom:-50px;right:-50px;animation:orbPulse2 10s ease-in-out infinite}
-.bg-orb:nth-child(3){width:200px;height:200px;background:rgba(0,200,255,.2);top:40%;left:50%;animation:orbPulse3 12s ease-in-out infinite}
-@keyframes orbPulse1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,20px) scale(1.2)}}
-@keyframes orbPulse2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-20px,-30px) scale(1.1)}}
-@keyframes orbPulse3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
-
-/* Scan line */
-.bg-scanline{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
-}
+/* ===== CANVAS BACKGROUND ===== */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+#app{flex:1;display:flex;flex-direction:column;background:transparent;position:relative;overflow:hidden;z-index:1}
 
 .screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px 15px 10px;scrollbar-width:none;position:relative;z-index:5}
 .screen::-webkit-scrollbar{display:none}
@@ -169,16 +127,8 @@ body{display:flex;flex-direction:column}
 </style>
 </head>
 <body>
+<canvas id="bg-canvas"></canvas>
 <div id="app">
-  <!-- Background layers -->
-  <div class="bg-grid"></div>
-  <div class="bg-shapes">
-    <div class="bg-shape"></div><div class="bg-shape"></div><div class="bg-shape"></div><div class="bg-shape"></div>
-    <div class="bg-shape"></div><div class="bg-shape"></div><div class="bg-shape"></div><div class="bg-shape"></div>
-  </div>
-  <div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div>
-  <div class="bg-scanline"></div>
-
   <div id="topbar">
     <div class="coins" id="coin-display">0 💰</div>
     <div class="per-sec" id="per-sec-display">0/сек</div>
@@ -662,6 +612,22 @@ const SVG_COSMETICS = {
   }
 };
 
+// ===== SVG CONTENT SETTER (mobile-compatible, no innerHTML on SVG) =====
+function setSVGContent(element, svgString) {
+  while (element.firstChild) element.removeChild(element.firstChild);
+  if (!svgString) { element.style.display = 'none'; return; }
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(
+    '<svg xmlns="http://www.w3.org/2000/svg">' + svgString + '</svg>',
+    'image/svg+xml'
+  );
+  const parsed = doc.documentElement;
+  while (parsed.firstChild) {
+    element.appendChild(document.importNode(parsed.firstChild, true));
+  }
+  element.style.display = '';
+}
+
 function updateSVGCosmetics() {
   const eq = S.wardrobe.equipped;
   const container = document.getElementById('poop-container');
@@ -683,48 +649,41 @@ function updateSVGCosmetics() {
   // Hat
   const hatG = document.getElementById('svg-hat');
   if (eq.hat && SVG_COSMETICS.hat[eq.hat]) {
-    hatG.innerHTML = SVG_COSMETICS.hat[eq.hat];
-    hatG.style.display = '';
-  } else { hatG.innerHTML = ''; hatG.style.display = 'none'; }
+    setSVGContent(hatG, SVG_COSMETICS.hat[eq.hat]);
+  } else { setSVGContent(hatG, null); }
 
-  // Glasses — hide default eyes if wearing glasses, show glasses SVG
+  // Glasses
   const glassesG = document.getElementById('svg-glasses');
   const defaultEyes = document.getElementById('svg-eyes-default');
   if (eq.glasses && SVG_COSMETICS.glasses[eq.glasses]) {
-    glassesG.innerHTML = SVG_COSMETICS.glasses[eq.glasses];
-    glassesG.style.display = '';
-    // Keep eyes visible under glasses (except VR which covers them)
+    setSVGContent(glassesG, SVG_COSMETICS.glasses[eq.glasses]);
     if (eq.glasses === 'vr') {
       defaultEyes.style.display = 'none';
     } else {
       defaultEyes.style.display = '';
     }
   } else {
-    glassesG.innerHTML = '';
-    glassesG.style.display = 'none';
+    setSVGContent(glassesG, null);
     defaultEyes.style.display = '';
   }
 
   // Costume
   const costFront = document.getElementById('svg-costume-front');
   if (eq.costume && SVG_COSMETICS.costume[eq.costume]) {
-    costFront.innerHTML = SVG_COSMETICS.costume[eq.costume];
-    costFront.style.display = '';
-  } else { costFront.innerHTML = ''; costFront.style.display = 'none'; }
+    setSVGContent(costFront, SVG_COSMETICS.costume[eq.costume]);
+  } else { setSVGContent(costFront, null); }
 
   // Item
   const itemG = document.getElementById('svg-item');
   if (eq.item && SVG_COSMETICS.item[eq.item]) {
-    itemG.innerHTML = SVG_COSMETICS.item[eq.item];
-    itemG.style.display = '';
-  } else { itemG.innerHTML = ''; itemG.style.display = 'none'; }
+    setSVGContent(itemG, SVG_COSMETICS.item[eq.item]);
+  } else { setSVGContent(itemG, null); }
 
   // Shoes
   const shoesG = document.getElementById('svg-shoes');
   if (eq.shoes && SVG_COSMETICS.shoes[eq.shoes]) {
-    shoesG.innerHTML = SVG_COSMETICS.shoes[eq.shoes];
-    shoesG.style.display = '';
-  } else { shoesG.innerHTML = ''; shoesG.style.display = 'none'; }
+    setSVGContent(shoesG, SVG_COSMETICS.shoes[eq.shoes]);
+  } else { setSVGContent(shoesG, null); }
 }
 
 // ===== COMPUTED =====
@@ -1099,6 +1058,195 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) saveG
 if ('serviceWorker' in navigator) {
   // No SW file needed for basic PWA install prompt
 }
+
+// ===== CANVAS ANIMATED BACKGROUND =====
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Stars
+  const STAR_COUNT = 120;
+  const stars = [];
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random() * 2000,
+      y: Math.random() * 2000,
+      r: Math.random() * 1.8 + 0.3,
+      color: ['#ffffff','#aaccff','#cc88ff','#88ddff'][Math.floor(Math.random()*4)],
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.5 + Math.random() * 1.5
+    });
+  }
+
+  // Neon lines (synthwave style)
+  const NEON_COUNT = 4;
+  const neonLines = [];
+  for (let i = 0; i < NEON_COUNT; i++) {
+    neonLines.push({
+      y: H + Math.random() * H,
+      angle: (Math.random() - 0.5) * 0.3,
+      speed: 0.3 + Math.random() * 0.5,
+      color: ['#ff00ff','#00ffff','#ff0088','#00ff88'][i % 4],
+      width: 1 + Math.random()
+    });
+  }
+
+  // Floating particles
+  const PART_COUNT = 18;
+  const particles = [];
+  for (let i = 0; i < PART_COUNT; i++) {
+    particles.push({
+      x: Math.random() * 2000,
+      y: Math.random() * 2000,
+      r: 1.5 + Math.random() * 3,
+      color: ['#ff00ff','#00ffff','#00ff88','#ff0088','#8800ff','#ffaa00'][Math.floor(Math.random()*6)],
+      speedY: 0.2 + Math.random() * 0.6,
+      wobblePhase: Math.random() * Math.PI * 2,
+      wobbleAmp: 0.3 + Math.random() * 0.8,
+      wobbleSpeed: 0.5 + Math.random() * 1
+    });
+  }
+
+  // Horizon line
+  const horizonY = 0.78;
+
+  let lastFrame = 0;
+  const FRAME_INTERVAL = 1000 / 30; // 30fps cap
+
+  function draw(timestamp) {
+    requestAnimationFrame(draw);
+    if (timestamp - lastFrame < FRAME_INTERVAL) return;
+    lastFrame = timestamp;
+
+    const t = timestamp * 0.001;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#0a0015');
+    grad.addColorStop(0.5, '#120828');
+    grad.addColorStop(1, '#1a0a2e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Horizon glow
+    const hY = H * horizonY;
+    const hGlow = ctx.createRadialGradient(W * 0.5, hY, 0, W * 0.5, hY, W * 0.6);
+    hGlow.addColorStop(0, 'rgba(255,0,255,0.08)');
+    hGlow.addColorStop(0.5, 'rgba(255,0,100,0.03)');
+    hGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = hGlow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Horizon line
+    ctx.save();
+    ctx.globalAlpha = 0.3 + Math.sin(t * 0.5) * 0.1;
+    for (let g = 3; g >= 0; g--) {
+      ctx.beginPath();
+      ctx.moveTo(0, hY);
+      ctx.lineTo(W, hY);
+      ctx.strokeStyle = '#ff00ff';
+      ctx.lineWidth = 1 + g * 2;
+      ctx.globalAlpha = (0.3 + Math.sin(t * 0.5) * 0.1) * (g === 0 ? 1 : 0.15 / g);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Grid lines below horizon (synthwave perspective)
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    ctx.strokeStyle = '#ff00ff';
+    ctx.lineWidth = 1;
+    const gridCount = 12;
+    for (let i = 1; i <= gridCount; i++) {
+      const ratio = i / gridCount;
+      const yy = hY + (H - hY) * ratio * ratio;
+      ctx.beginPath();
+      ctx.moveTo(0, yy);
+      ctx.lineTo(W, yy);
+      ctx.stroke();
+    }
+    // Vertical perspective lines
+    const vanishX = W * 0.5;
+    for (let i = -6; i <= 6; i++) {
+      const bx = vanishX + i * (W * 0.15);
+      ctx.beginPath();
+      ctx.moveTo(vanishX, hY);
+      ctx.lineTo(bx, H);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Stars
+    for (const s of stars) {
+      const sx = s.x % W;
+      const sy = s.y % H;
+      const alpha = 0.4 + 0.6 * Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = Math.max(0.1, Math.min(1, alpha * 0.7));
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Neon lines floating upward
+    for (const nl of neonLines) {
+      nl.y -= nl.speed;
+      if (nl.y < -20) nl.y = H + 20 + Math.random() * 100;
+
+      const x1 = -50;
+      const x2 = W + 50;
+      const y1 = nl.y - nl.angle * W * 0.5;
+      const y2 = nl.y + nl.angle * W * 0.5;
+
+      // Glow layers
+      for (let g = 3; g >= 0; g--) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = nl.color;
+        ctx.lineWidth = nl.width + g * 4;
+        ctx.globalAlpha = g === 0 ? 0.6 : 0.05;
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Floating particles
+    for (const p of particles) {
+      p.y -= p.speedY;
+      p.wobblePhase += p.wobbleSpeed * 0.016;
+      const px = (p.x + Math.sin(p.wobblePhase) * p.wobbleAmp * 30) % W;
+      if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
+
+      // Glow
+      const grd = ctx.createRadialGradient(px, p.y, 0, px, p.y, p.r * 4);
+      grd.addColorStop(0, p.color);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = grd;
+      ctx.fillRect(px - p.r * 4, p.y - p.r * 4, p.r * 8, p.r * 8);
+
+      // Core
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.arc(px, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  requestAnimationFrame(draw);
+})();
 </script>
 </body>
 </html>
