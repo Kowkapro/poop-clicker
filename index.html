@@ -17,8 +17,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 body{display:flex;flex-direction:column}
 
 /* ===== CANVAS BACKGROUND ===== */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-#app{flex:1;display:flex;flex-direction:column;background:transparent;position:relative;overflow:hidden;z-index:1}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;touch-action:none}
+#app{flex:1;display:flex;flex-direction:column;background:transparent;position:relative;overflow:hidden;z-index:2}
 
 .screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px 15px 10px;scrollbar-width:none;position:relative;z-index:5}
 .screen::-webkit-scrollbar{display:none}
@@ -137,7 +137,7 @@ body{display:flex;flex-direction:column}
 
   <!-- Game Screen -->
   <div class="screen active" id="game-screen">
-    <div id="poop-container" ontouchstart="handleTap(event)" onmousedown="handleTap(event)">
+    <div id="poop-container">
       <svg id="poop-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <!-- Base gradient -->
@@ -280,7 +280,7 @@ body{display:flex;flex-direction:column}
         <g id="svg-hat" style="display:none"></g>
       </svg>
     </div>
-    <div id="golden-poop" ontouchstart="collectGolden(event)" onclick="collectGolden(event)">✨💩✨</div>
+    <div id="golden-poop">✨💩✨</div>
     <button id="prestige-btn" onclick="doPrestige()">🔄 Перерождение (+50% множитель)</button>
   </div>
 
@@ -727,7 +727,8 @@ function fmtTime(ms) {
 
 // ===== TAP =====
 function handleTap(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
+  if (e && e.stopPropagation) e.stopPropagation();
   initAudio();
   if (!musicStarted) startMusic();
 
@@ -1054,6 +1055,29 @@ requestAnimationFrame(gameLoop);
 setInterval(saveGame, 15000);
 window.addEventListener('beforeunload', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+
+// Reliable tap/click handlers (works in Telegram WebView)
+(function() {
+  const pc = document.getElementById('poop-container');
+  let lastTapTime = 0;
+  function onTap(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastTapTime < 50) return; // debounce
+    lastTapTime = now;
+    handleTap(e);
+  }
+  pc.addEventListener('touchstart', onTap, { passive: false });
+  pc.addEventListener('click', function(e) {
+    if (Date.now() - lastTapTime < 300) return; // skip if touch already handled
+    onTap(e);
+  });
+
+  const gp = document.getElementById('golden-poop');
+  gp.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); collectGolden(e); }, { passive: false });
+  gp.addEventListener('click', function(e) { collectGolden(e); });
+})();
 
 if ('serviceWorker' in navigator) {
   // No SW file needed for basic PWA install prompt
