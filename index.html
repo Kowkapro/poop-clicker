@@ -705,7 +705,10 @@ function showOfflineModal(earned, seconds) {
 loadGame();
 updateDisplay();
 requestAnimationFrame(gameLoop);
-setInterval(saveGame, 30000);
+setInterval(saveGame, 15000);
+// Save on close/hide
+window.addEventListener('beforeunload', saveGame);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
 
 // PWA service worker registration (basic)
 if ('serviceWorker' in navigator) {
