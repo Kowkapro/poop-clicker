@@ -5,129 +5,95 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0015">
+<meta name="theme-color" content="#1a0a2e">
 <link rel="manifest" href="manifest.json">
 <title>💩 Какашка Кликер</title>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#0a0015;color:#fff}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#1a0a2e;color:#fff}
 body{display:flex;flex-direction:column}
-
-/* ===== CANVAS BACKGROUND ===== */
-#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;touch-action:none}
-#app{flex:1;display:flex;flex-direction:column;background:transparent;position:relative;overflow:hidden;z-index:2}
-
-.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px 15px 10px;scrollbar-width:none;position:relative;z-index:5}
+@keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#app{flex:1;display:flex;flex-direction:column;background:linear-gradient(-45deg,#1a0a2e,#16213e,#0f3460,#1a0a2e,#2d1b69);background-size:400% 400%;animation:bgShift 20s ease infinite;position:relative;overflow:hidden}
+.screen{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:10px 15px 10px;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
 .screen.active{display:flex}
-
 /* Top bar */
-#topbar{text-align:center;padding:12px 10px 8px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;z-index:10;border-bottom:1px solid rgba(255,0,255,.15)}
-#topbar .coins{font-size:28px;font-weight:900;background:linear-gradient(90deg,#ffd700,#ffaa00,#ffd700);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:goldShimmer 3s linear infinite;filter:drop-shadow(0 0 8px rgba(255,215,0,.5))}
-@keyframes goldShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#topbar{text-align:center;padding:12px 10px 8px;background:rgba(0,0,0,.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;z-index:10}
+#topbar .coins{font-size:28px;font-weight:900;background:linear-gradient(90deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 0 8px rgba(255,215,0,.5))}
 #topbar .per-sec{font-size:13px;color:#aaa;margin-top:2px}
-
-/* ===== SVG POOP CHARACTER ===== */
+/* Poop area */
 #game-screen{align-items:center;justify-content:center;position:relative}
-#poop-container{position:relative;width:220px;height:240px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:5}
-#poop-container.tapped #poop-svg{transform:scale(.88);transition:transform .08s ease}
-#poop-container:not(.tapped) #poop-svg{transform:scale(1);transition:transform .15s ease}
-
-/* Neon glow on tap */
-#poop-container.tap-glow #poop-body-group{filter:url(#neonGlow)}
-@keyframes neonFlash{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
-.neon-flash{animation:neonFlash .3s ease}
-
-#poop-svg{width:200px;height:220px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}
-
-/* Skin classes applied to container */
-.skin-golden #poop-svg .poop-body{fill:url(#goldGrad) !important}
-.skin-golden #poop-svg{filter:drop-shadow(0 0 20px rgba(255,215,0,.6)) drop-shadow(0 8px 20px rgba(0,0,0,.5))}
-
-.skin-rainbow #poop-svg{animation:rainbowHue 2s linear infinite}
-@keyframes rainbowHue{0%{filter:drop-shadow(0 0 20px red) hue-rotate(0deg)}100%{filter:drop-shadow(0 0 20px red) hue-rotate(360deg)}}
-
-.skin-neon #poop-svg{filter:drop-shadow(0 0 25px #0ff) drop-shadow(0 0 12px #f0f) drop-shadow(0 8px 20px rgba(0,0,0,.5))}
-.skin-neon #poop-svg .poop-body{fill:url(#neonGrad) !important}
-
-.skin-diamond #poop-svg .poop-body{fill:url(#diamondGrad) !important}
-.skin-diamond #poop-svg{animation:diamondSparkle 1.5s ease-in-out infinite}
-@keyframes diamondSparkle{0%,100%{filter:drop-shadow(0 0 20px rgba(136,136,255,.6)) drop-shadow(0 8px 20px rgba(0,0,0,.5))}50%{filter:drop-shadow(0 0 35px rgba(255,255,255,.8)) drop-shadow(0 8px 20px rgba(0,0,0,.5))}}
-
-/* Idle breathing */
-@keyframes breathe{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.02) translateY(-2px)}}
-#poop-container:not(.tapped) #poop-body-group{animation:breathe 3s ease-in-out infinite}
-
+#poop-container{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#poop{font-size:140px;line-height:1;transition:transform .08s ease;filter:drop-shadow(0 0 20px rgba(255,165,0,.4));position:relative;z-index:2}
+#poop.tapped{transform:scale(.88)}
+#poop.crit{animation:critFlash .3s ease}
+@keyframes critFlash{0%{filter:drop-shadow(0 0 20px rgba(255,165,0,.4))}50%{filter:drop-shadow(0 0 40px rgba(255,0,0,.9)) brightness(1.5)}100%{filter:drop-shadow(0 0 20px rgba(255,165,0,.4))}}
+/* Cosmetics on poop */
+#poop-hat{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:50px;z-index:5;pointer-events:none}
+#poop-glasses{position:absolute;top:55px;left:50%;transform:translateX(-50%);font-size:35px;z-index:5;pointer-events:none}
+#poop-costume{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:35px;z-index:1;pointer-events:none}
+#poop-item{position:absolute;top:50%;right:-30px;transform:translateY(-50%);font-size:40px;z-index:5;pointer-events:none}
+#poop-shoes{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:30px;z-index:1;pointer-events:none}
 /* Floating text */
-.float-text{position:absolute;pointer-events:none;font-weight:900;font-size:22px;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8),0 0 20px rgba(255,215,0,.4);animation:floatUp .8s ease-out forwards;z-index:100}
-.float-text.crit{font-size:32px;color:#ff4444;text-shadow:0 0 15px rgba(255,0,0,.8),0 0 30px rgba(255,0,0,.4)}
+.float-text{position:absolute;pointer-events:none;font-weight:900;font-size:22px;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8);animation:floatUp .8s ease-out forwards;z-index:100}
+.float-text.crit{font-size:32px;color:#ff4444;text-shadow:0 0 15px rgba(255,0,0,.8)}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-100px) scale(.6)}}
-
 /* Particle */
 .particle{position:absolute;pointer-events:none;font-size:20px;animation:particleFly .6s ease-out forwards;z-index:99}
 @keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0)}}
-
 /* Golden poop */
 #golden-poop{position:absolute;font-size:60px;z-index:50;cursor:pointer;animation:goldenFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 15px gold);display:none}
 @keyframes goldenFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
-
 /* Nav */
-#nav{display:flex;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,0,255,.2);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:10;position:relative}
+#nav{display:flex;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.1);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
 .nav-btn{flex:1;text-align:center;padding:8px 4px;font-size:11px;color:#888;border:none;background:none;cursor:pointer;transition:color .2s}
-.nav-btn.active{color:#ff00ff;text-shadow:0 0 10px rgba(255,0,255,.5)}
+.nav-btn.active{color:#ff00ff}
 .nav-btn .icon{font-size:22px;display:block;margin-bottom:2px}
-
 /* Upgrade cards */
-.upgrade-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;padding-right:60px;margin-bottom:10px;display:flex;align-items:center;gap:10px;transition:all .2s;position:relative;overflow:visible;min-height:70px;backdrop-filter:blur(5px)}
-.upgrade-card.affordable{border-color:rgba(0,255,100,.3);box-shadow:0 0 15px rgba(0,255,100,.1),inset 0 0 15px rgba(0,255,100,.03)}
+.upgrade-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;padding-right:60px;margin-bottom:10px;display:flex;align-items:center;gap:10px;transition:all .2s;position:relative;overflow:visible;min-height:70px}
+.upgrade-card.affordable{border-color:rgba(0,255,100,.3);box-shadow:0 0 15px rgba(0,255,100,.1)}
 .upgrade-card .emoji{font-size:30px;flex-shrink:0;width:36px;text-align:center}
 .upgrade-card .info{flex:1;min-width:0;overflow:visible}
 .upgrade-card .name{font-size:13px;font-weight:700;word-wrap:break-word;line-height:1.2}
 .upgrade-card .desc{font-size:10px;color:#aaa;margin-top:2px;word-wrap:break-word;line-height:1.3}
 .upgrade-card .cost{font-size:13px;color:#ffd700;margin-top:4px;font-weight:700;word-wrap:break-word}
 .upgrade-card .level{position:absolute;top:8px;right:10px;font-size:11px;color:#888;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:10px}
-.section-title{font-size:16px;font-weight:800;margin:15px 0 8px;padding-left:5px;color:#ff00ff;text-transform:uppercase;letter-spacing:1px;text-shadow:0 0 10px rgba(255,0,255,.3)}
+.section-title{font-size:16px;font-weight:800;margin:15px 0 8px;padding-left:5px;color:#ff00ff;text-transform:uppercase;letter-spacing:1px}
 .section-title:first-child{margin-top:5px}
-
 /* Wardrobe */
 .wardrobe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.ward-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(5px)}
+.ward-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
 .ward-item .wi-emoji{font-size:32px}
 .ward-item .wi-name{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ward-item .wi-cost{font-size:11px;color:#ffd700;margin-top:2px}
-.ward-item.owned{border-color:rgba(0,255,100,.4);background:rgba(0,255,100,.05)}
-.ward-item.equipped{border-color:#ff00ff;box-shadow:0 0 12px rgba(255,0,255,.3);background:rgba(255,0,255,.08)}
+.ward-item.owned{border-color:rgba(0,255,100,.4);background:rgba(0,255,100,.08)}
+.ward-item.equipped{border-color:#ff00ff;box-shadow:0 0 12px rgba(255,0,255,.3);background:rgba(255,0,255,.1)}
 .ward-item.affordable:not(.owned){border-color:rgba(255,215,0,.4)}
-
 /* Stats */
-.stat-row{display:flex;justify-content:space-between;padding:12px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+.stat-row{display:flex;justify-content:space-between;padding:12px 8px;border-bottom:1px solid rgba(255,255,255,.06)}
 .stat-label{color:#aaa;font-size:14px}
 .stat-value{font-weight:700;font-size:14px;color:#ffd700}
-
 /* Prestige */
-#prestige-btn{display:none;margin:15px auto;padding:14px 30px;background:linear-gradient(135deg,#ff00ff,#8b00ff);border:none;border-radius:30px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 0 25px rgba(255,0,255,.4);animation:prestigePulse 2s ease-in-out infinite;z-index:5;position:relative}
+#prestige-btn{display:none;margin:15px auto;padding:14px 30px;background:linear-gradient(135deg,#ff00ff,#8b00ff);border:none;border-radius:30px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 0 25px rgba(255,0,255,.4);animation:prestigePulse 2s ease-in-out infinite}
 @keyframes prestigePulse{0%,100%{box-shadow:0 0 25px rgba(255,0,255,.4)}50%{box-shadow:0 0 40px rgba(255,0,255,.7)}}
-
 /* Mute btn */
 #mute-btn{position:absolute;top:12px;right:12px;z-index:20;background:rgba(0,0,0,.4);border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;color:#fff;backdrop-filter:blur(5px)}
-
+/* Skin overlays */
+.skin-golden #poop{filter:drop-shadow(0 0 20px gold) saturate(2) brightness(1.2) sepia(1) hue-rotate(10deg)}
+.skin-rainbow #poop{animation:rainbowHue 2s linear infinite}
+@keyframes rainbowHue{0%{filter:drop-shadow(0 0 20px red) hue-rotate(0deg)}100%{filter:drop-shadow(0 0 20px red) hue-rotate(360deg)}}
+.skin-neon #poop{filter:drop-shadow(0 0 30px #0ff) drop-shadow(0 0 15px #f0f) brightness(1.3)}
+.skin-diamond #poop{filter:drop-shadow(0 0 25px #88f) brightness(1.4) contrast(1.1);animation:diamondSparkle 1.5s ease-in-out infinite}
+@keyframes diamondSparkle{0%,100%{filter:drop-shadow(0 0 25px #88f) brightness(1.4)}50%{filter:drop-shadow(0 0 35px #fff) brightness(1.7)}}
 /* Offline modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(5px)}
-.modal{background:linear-gradient(135deg,#1a0030,#0a0020);border:2px solid #ff00ff;border-radius:20px;padding:25px;text-align:center;max-width:300px;width:90%;box-shadow:0 0 40px rgba(255,0,255,.2)}
+.modal{background:#1e1040;border:2px solid #ff00ff;border-radius:20px;padding:25px;text-align:center;max-width:300px;width:90%}
 .modal h2{font-size:20px;margin-bottom:10px}
 .modal .amount{font-size:28px;color:#ffd700;font-weight:900;margin:10px 0}
 .modal button{padding:12px 30px;background:linear-gradient(135deg,#ff00ff,#8b00ff);border:none;border-radius:20px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}
-
-/* Wardrobe preview */
-#wardrobe-preview{text-align:center;padding:10px 0;position:relative;z-index:5}
-#wardrobe-preview svg{width:120px;height:140px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
 <div id="app">
   <div id="topbar">
     <div class="coins" id="coin-display">0 💰</div>
@@ -138,147 +104,12 @@ body{display:flex;flex-direction:column}
   <!-- Game Screen -->
   <div class="screen active" id="game-screen">
     <div id="poop-container" ontouchstart="handleTap(event)" onmousedown="handleTap(event)">
-      <svg id="poop-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <!-- Base gradient -->
-          <radialGradient id="poopGrad" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#a0724a"/>
-            <stop offset="50%" stop-color="#7d5a3c"/>
-            <stop offset="100%" stop-color="#5a3d28"/>
-          </radialGradient>
-          <!-- Gold skin -->
-          <radialGradient id="goldGrad" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#ffe066"/>
-            <stop offset="50%" stop-color="#ffd700"/>
-            <stop offset="100%" stop-color="#b8860b"/>
-          </radialGradient>
-          <!-- Neon skin -->
-          <radialGradient id="neonGrad" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#ff00ff"/>
-            <stop offset="50%" stop-color="#8800aa"/>
-            <stop offset="100%" stop-color="#4400ff"/>
-          </radialGradient>
-          <!-- Diamond skin -->
-          <radialGradient id="diamondGrad" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#e0e8ff"/>
-            <stop offset="30%" stop-color="#a0b8ff"/>
-            <stop offset="70%" stop-color="#6080dd"/>
-            <stop offset="100%" stop-color="#4060cc"/>
-          </radialGradient>
-          <!-- Shadow filter -->
-          <filter id="innerShadow">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
-            <feOffset dx="2" dy="3" result="offsetBlur"/>
-            <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
-          </filter>
-          <!-- Neon glow filter -->
-          <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1  0 0 0 0 0  0 0 0 0 1  0 0 0 1 0" result="pinkBlur"/>
-            <feMerge><feMergeNode in="pinkBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <!-- Highlight -->
-          <radialGradient id="highlight" cx="35%" cy="25%" r="40%">
-            <stop offset="0%" stop-color="rgba(255,255,255,.35)"/>
-            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-          </radialGradient>
-        </defs>
-
-        <!-- Shoes layer (behind body) -->
-        <g id="svg-shoes" style="display:none"></g>
-
-        <!-- Costume layer (behind body, wraps around) -->
-        <g id="svg-costume-back" style="display:none"></g>
-
-        <!-- POOP BODY -->
-        <g id="poop-body-group">
-          <!-- Main body shape — classic poop swirl -->
-          <path class="poop-body" d="
-            M100,28
-            C88,28 82,36 80,42
-            C74,38 66,40 62,48
-            C56,46 50,52 52,60
-            C44,62 38,72 42,82
-            C34,88 32,98 38,108
-            C32,116 34,130 44,140
-            C40,150 42,162 50,170
-            C58,180 72,188 100,188
-            C128,188 142,180 150,170
-            C158,162 160,150 156,140
-            C166,130 168,116 162,108
-            C168,98 166,88 158,82
-            C162,72 156,62 148,60
-            C150,52 144,46 138,48
-            C134,40 126,38 120,42
-            C118,36 112,28 100,28Z"
-            fill="url(#poopGrad)" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-          <!-- 3D highlight -->
-          <path d="
-            M100,32
-            C90,32 84,38 82,44
-            C76,42 70,44 66,50
-            C60,50 56,56 58,62
-            C52,66 48,74 50,82
-            C44,90 46,100 50,108
-            C50,100 56,85 72,75
-            C88,65 100,60 115,62
-            C130,64 138,72 142,80
-            C144,74 142,66 136,60
-            C140,54 134,48 128,50
-            C126,42 118,38 114,42
-            C110,36 106,32 100,32Z"
-            fill="url(#highlight)" opacity=".6"/>
-          <!-- Depth lines -->
-          <path d="M62,48 C66,52 68,50 70,54" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M130,50 C132,54 135,52 136,56" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="1.5" stroke-linecap="round"/>
-        </g>
-
-        <!-- Costume front layer -->
-        <g id="svg-costume-front" style="display:none"></g>
-
-        <!-- FACE -->
-        <g id="poop-face">
-          <!-- Eyes (default) -->
-          <g id="svg-eyes-default">
-            <ellipse cx="78" cy="110" rx="10" ry="11" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
-            <ellipse cx="122" cy="110" rx="10" ry="11" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
-            <ellipse cx="80" cy="110" rx="5" ry="5.5" fill="#2a1a0a"/>
-            <ellipse cx="124" cy="110" rx="5" ry="5.5" fill="#2a1a0a"/>
-            <ellipse cx="82" cy="108" rx="2" ry="2" fill="#fff"/>
-            <ellipse cx="126" cy="108" rx="2" ry="2" fill="#fff"/>
-          </g>
-          <!-- Mouth (default — smile) -->
-          <g id="svg-mouth-default">
-            <path d="M85,132 Q100,148 115,132" fill="none" stroke="#2a1a0a" stroke-width="3" stroke-linecap="round"/>
-          </g>
-          <!-- Cheeks (blush) -->
-          <ellipse cx="65" cy="125" rx="8" ry="5" fill="rgba(255,100,100,.2)"/>
-          <ellipse cx="135" cy="125" rx="8" ry="5" fill="rgba(255,100,100,.2)"/>
-        </g>
-
-        <!-- Glasses/Eyes overlay -->
-        <g id="svg-glasses" style="display:none"></g>
-
-        <!-- Mask overlay -->
-        <g id="svg-mask" style="display:none"></g>
-
-        <!-- Arms and item -->
-        <g id="svg-arms">
-          <!-- Left arm -->
-          <path d="M50,130 Q35,140 30,155" fill="none" stroke="url(#poopGrad)" stroke-width="12" stroke-linecap="round" class="poop-arm"/>
-          <!-- Right arm -->
-          <path d="M150,130 Q165,140 170,155" fill="none" stroke="url(#poopGrad)" stroke-width="12" stroke-linecap="round" class="poop-arm"/>
-          <!-- Hands -->
-          <circle cx="30" cy="157" r="8" fill="url(#poopGrad)" class="poop-hand" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
-          <circle cx="170" cy="157" r="8" fill="url(#poopGrad)" class="poop-hand" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
-        </g>
-
-        <!-- Item in hand -->
-        <g id="svg-item" style="display:none"></g>
-
-        <!-- Hat layer (on top) -->
-        <g id="svg-hat" style="display:none"></g>
-      </svg>
+      <div id="poop-hat"></div>
+      <div id="poop-glasses"></div>
+      <div id="poop">💩</div>
+      <div id="poop-costume"></div>
+      <div id="poop-item"></div>
+      <div id="poop-shoes"></div>
     </div>
     <div id="golden-poop" ontouchstart="collectGolden(event)" onclick="collectGolden(event)">✨💩✨</div>
     <button id="prestige-btn" onclick="doPrestige()">🔄 Перерождение (+50% множитель)</button>
@@ -387,6 +218,7 @@ function startMusic() {
   function playStep() {
     if (!audioCtx) return;
     const t = audioCtx.currentTime;
+    // Bass
     const bo = audioCtx.createOscillator();
     const bg = audioCtx.createGain();
     bo.type = 'sawtooth';
@@ -396,6 +228,7 @@ function startMusic() {
     bo.connect(bg).connect(musicGain);
     bo.start(t);
     bo.stop(t + 0.22);
+    // Hi-hat
     if (step % 2 === 0) {
       const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
       const d = buf.getChannelData(0);
@@ -421,14 +254,17 @@ function toggleMute() {
 
 // ===== UPGRADES DEF =====
 const UPGRADES = [
+  // Tap
   { id: 'tap_power', emoji: '💪', name: 'Сила тапа', desc: '+1 за тап', section: 'tap', baseCost: 10, scaling: 1.15 },
   { id: 'multi_tap', emoji: '⚡', name: 'Мульти-тап', desc: 'Множитель тапа', section: 'tap', baseCost: 500, scaling: 1.15 },
   { id: 'crit_tap', emoji: '💥', name: 'Критический тап', desc: 'Шанс x5 крита', section: 'tap', baseCost: 1000, scaling: 1.15 },
   { id: 'auto_click', emoji: '🎯', name: 'Авто-кликер', desc: 'Авто-тапов/сек', section: 'tap', baseCost: 200, scaling: 1.15 },
+  // Passive
   { id: 'factory', emoji: '🏭', name: 'Какашечная фабрика', desc: '+10/мин', section: 'passive', baseCost: 500, scaling: 1.15, perMin: 10 },
   { id: 'empire', emoji: '🌍', name: 'Какашечная империя', desc: '+100/мин', section: 'passive', baseCost: 5000, scaling: 1.15, perMin: 100 },
   { id: 'cosmic', emoji: '🚀', name: 'Космическая какашка', desc: '+1000/мин', section: 'passive', baseCost: 50000, scaling: 1.15, perMin: 1000 },
   { id: 'universe', emoji: '🌌', name: 'Какашечная вселенная', desc: '+10000/мин', section: 'passive', baseCost: 500000, scaling: 1.15, perMin: 10000 },
+  // Bonus
   { id: 'lucky', emoji: '🍀', name: 'Удачливая какашка', desc: 'Золотая какашка x50', section: 'bonus', baseCost: 2000, scaling: 1.15 },
   { id: 'diamond', emoji: '💎', name: 'Алмазная какашка', desc: 'Шанс бонуса x100', section: 'bonus', baseCost: 10000, scaling: 1.15 },
 ];
@@ -477,215 +313,6 @@ const WARDROBE = {
 
 const WARD_LABELS = { hat: '🎩 Шляпы', glasses: '😎 Очки', costume: '👕 Костюмы', item: '🗡️ Предметы', skin: '🎨 Скины', shoes: '👟 Обувь' };
 
-// ===== SVG COSMETICS RENDERERS =====
-const SVG_COSMETICS = {
-  hat: {
-    cap: `<g transform="translate(100,30)">
-      <ellipse cx="0" cy="8" rx="38" ry="8" fill="#cc2222" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-      <path d="M-32,8 Q-34,-10 0,-18 Q34,-10 32,8" fill="#dd3333"/>
-      <ellipse cx="0" cy="8" rx="38" ry="5" fill="#cc2222"/>
-      <rect x="-5" y="-16" width="10" height="8" rx="4" fill="#dd4444"/>
-    </g>`,
-    tophat: `<g transform="translate(100,18)">
-      <ellipse cx="0" cy="22" rx="40" ry="8" fill="#1a1a2e" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
-      <rect x="-24" y="-20" width="48" height="42" rx="3" fill="#222244" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-      <rect x="-24" y="10" width="48" height="6" fill="#8b00ff"/>
-      <ellipse cx="0" cy="-20" rx="24" ry="5" fill="#2a2a4e"/>
-    </g>`,
-    crown: `<g transform="translate(100,28)">
-      <path d="M-30,12 L-35,-12 L-18,0 L0,-18 L18,0 L35,-12 L30,12Z" fill="url(#goldGrad)" stroke="#b8860b" stroke-width="1.5"/>
-      <circle cx="-18" cy="-3" r="3" fill="#ff0044"/>
-      <circle cx="0" cy="-14" r="4" fill="#00aaff"/>
-      <circle cx="18" cy="-3" r="3" fill="#00ff88"/>
-      <rect x="-30" y="10" width="60" height="6" rx="2" fill="#ffd700" stroke="#b8860b" stroke-width=".5"/>
-    </g>`,
-    halo: `<g transform="translate(100,20)">
-      <ellipse cx="0" cy="0" rx="35" ry="10" fill="none" stroke="#ffd700" stroke-width="4" opacity=".8"/>
-      <ellipse cx="0" cy="0" rx="35" ry="10" fill="none" stroke="#fff" stroke-width="1.5" opacity=".4"/>
-      <ellipse cx="0" cy="-2" rx="30" ry="7" fill="rgba(255,215,0,.15)"/>
-    </g>`
-  },
-  glasses: {
-    glasses: `<g transform="translate(100,110)">
-      <circle cx="-22" cy="0" r="14" fill="none" stroke="#444" stroke-width="2.5"/>
-      <circle cx="22" cy="0" r="14" fill="none" stroke="#444" stroke-width="2.5"/>
-      <circle cx="-22" cy="0" r="12" fill="rgba(200,220,255,.15)"/>
-      <circle cx="22" cy="0" r="12" fill="rgba(200,220,255,.15)"/>
-      <line x1="-8" y1="0" x2="8" y2="0" stroke="#444" stroke-width="2"/>
-      <line x1="-36" y1="-2" x2="-46" y2="-6" stroke="#444" stroke-width="2"/>
-      <line x1="36" y1="-2" x2="46" y2="-6" stroke="#444" stroke-width="2"/>
-    </g>`,
-    sunglasses: `<g transform="translate(100,110)">
-      <rect x="-38" y="-10" width="28" height="20" rx="4" fill="#111" stroke="#333" stroke-width="1.5"/>
-      <rect x="10" y="-10" width="28" height="20" rx="4" fill="#111" stroke="#333" stroke-width="1.5"/>
-      <rect x="-38" y="-10" width="28" height="8" rx="4" fill="rgba(255,255,255,.1)"/>
-      <rect x="10" y="-10" width="28" height="8" rx="4" fill="rgba(255,255,255,.1)"/>
-      <line x1="-10" y1="0" x2="10" y2="0" stroke="#333" stroke-width="2.5"/>
-      <line x1="-38" y1="-4" x2="-50" y2="-8" stroke="#333" stroke-width="2"/>
-      <line x1="38" y1="-4" x2="50" y2="-8" stroke="#333" stroke-width="2"/>
-    </g>`,
-    monocle: `<g transform="translate(122,110)">
-      <circle cx="0" cy="0" r="14" fill="none" stroke="#ffd700" stroke-width="2"/>
-      <circle cx="0" cy="0" r="12" fill="rgba(200,220,255,.1)"/>
-      <line x1="0" y1="14" x2="-5" y2="45" stroke="#ffd700" stroke-width="1"/>
-    </g>`,
-    vr: `<g transform="translate(100,108)">
-      <rect x="-42" y="-14" width="84" height="28" rx="8" fill="#222" stroke="#0ff" stroke-width="1.5"/>
-      <rect x="-42" y="-14" width="84" height="10" rx="8" fill="rgba(0,255,255,.1)"/>
-      <rect x="-30" y="-6" width="22" height="12" rx="3" fill="#0ff" opacity=".3"/>
-      <rect x="8" y="-6" width="22" height="12" rx="3" fill="#0ff" opacity=".3"/>
-      <line x1="-42" y1="0" x2="-55" y2="-4" stroke="#333" stroke-width="3"/>
-      <line x1="42" y1="0" x2="55" y2="-4" stroke="#333" stroke-width="3"/>
-    </g>`
-  },
-  costume: {
-    tshirt: `<g>
-      <path d="M60,140 L58,180 Q100,192 142,180 L140,140 Q100,150 60,140Z" fill="#4488ff" opacity=".7" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
-      <path d="M60,140 L58,145 Q100,155 142,145 L140,140 Q100,150 60,140Z" fill="rgba(255,255,255,.1)"/>
-    </g>`,
-    tuxedo: `<g>
-      <path d="M58,135 L55,182 Q100,194 145,182 L142,135 Q100,148 58,135Z" fill="#111" opacity=".8" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-      <line x1="100" y1="145" x2="100" y2="180" stroke="#fff" stroke-width="1" opacity=".5"/>
-      <path d="M85,140 L100,155 L115,140" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/>
-      <circle cx="100" cy="160" r="2" fill="#fff" opacity=".5"/>
-      <circle cx="100" cy="170" r="2" fill="#fff" opacity=".5"/>
-    </g>`,
-    armor: `<g>
-      <path d="M56,132 L52,180 Q100,195 148,180 L144,132 Q100,148 56,132Z" fill="#778899" opacity=".8" stroke="#99aabb" stroke-width="1.5"/>
-      <path d="M70,140 L70,170 Q100,182 130,170 L130,140 Q100,152 70,140Z" fill="#8899aa" opacity=".6"/>
-      <line x1="100" y1="145" x2="100" y2="175" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-      <line x1="75" y1="155" x2="125" y2="155" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
-    </g>`,
-    spacesuit: `<g>
-      <path d="M55,130 L50,185 Q100,198 150,185 L145,130 Q100,145 55,130Z" fill="#ddd" opacity=".75" stroke="#aaa" stroke-width="1"/>
-      <path d="M70,140 L68,175 Q100,185 132,175 L130,140 Q100,152 70,140Z" fill="#eee" opacity=".4"/>
-      <circle cx="85" cy="160" r="5" fill="none" stroke="#ff4400" stroke-width="1.5" opacity=".6"/>
-      <circle cx="115" cy="160" r="5" fill="none" stroke="#0088ff" stroke-width="1.5" opacity=".6"/>
-      <rect x="92" y="168" width="16" height="8" rx="2" fill="#444" opacity=".5"/>
-    </g>`
-  },
-  item: {
-    wand: `<g transform="translate(172,150)">
-      <line x1="0" y1="0" x2="15" y2="-30" stroke="#daa520" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="15" cy="-32" r="4" fill="#ff0" opacity=".8"/>
-      <circle cx="15" cy="-32" r="6" fill="none" stroke="#ff0" stroke-width="1" opacity=".4"/>
-    </g>`,
-    sword: `<g transform="translate(172,145)">
-      <line x1="0" y1="5" x2="5" y2="-5" stroke="#8B4513" stroke-width="5" stroke-linecap="round"/>
-      <line x1="5" y1="-5" x2="18" y2="-42" stroke="#c0c0c0" stroke-width="3" stroke-linecap="round"/>
-      <line x1="-3" y1="-3" x2="13" y2="-7" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
-      <line x1="8" y1="-12" x2="18" y2="-40" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
-    </g>`,
-    staff: `<g transform="translate(174,140)">
-      <line x1="0" y1="20" x2="5" y2="-35" stroke="#8B4513" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="5" cy="-38" r="8" fill="none" stroke="#8b00ff" stroke-width="2"/>
-      <circle cx="5" cy="-38" r="4" fill="#8b00ff" opacity=".6"/>
-      <circle cx="5" cy="-38" r="12" fill="none" stroke="#8b00ff" stroke-width=".5" opacity=".3"/>
-    </g>`,
-    lightsaber: `<g transform="translate(172,145)">
-      <rect x="-2" y="0" width="8" height="16" rx="2" fill="#555" stroke="#777" stroke-width=".5"/>
-      <line x1="2" y1="0" x2="2" y2="-40" stroke="#0ff" stroke-width="4" stroke-linecap="round" opacity=".9"/>
-      <line x1="2" y1="0" x2="2" y2="-40" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-    </g>`
-  },
-  shoes: {
-    sneakers: `<g transform="translate(100,192)">
-      <ellipse cx="-18" cy="0" rx="16" ry="8" fill="#ff4444" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-      <ellipse cx="18" cy="0" rx="16" ry="8" fill="#ff4444" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-      <line x1="-25" y1="-2" x2="-11" y2="-2" stroke="#fff" stroke-width="1.5"/>
-      <line x1="11" y1="-2" x2="25" y2="-2" stroke="#fff" stroke-width="1.5"/>
-    </g>`,
-    boots: `<g transform="translate(100,188)">
-      <path d="M-32,-2 L-34,8 L-4,8 L-4,-2 Q-18,-8 -32,-2Z" fill="#5a3a1a" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-      <path d="M4,-2 L4,8 L34,8 L32,-2 Q18,-8 4,-2Z" fill="#5a3a1a" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
-      <line x1="-32" y1="2" x2="-4" y2="2" stroke="#4a2a10" stroke-width="1.5"/>
-      <line x1="4" y1="2" x2="32" y2="2" stroke="#4a2a10" stroke-width="1.5"/>
-    </g>`,
-    rollers: `<g transform="translate(100,192)">
-      <rect x="-30" y="-6" width="22" height="10" rx="3" fill="#333" stroke="#555" stroke-width=".5"/>
-      <rect x="8" y="-6" width="22" height="10" rx="3" fill="#333" stroke="#555" stroke-width=".5"/>
-      <circle cx="-24" cy="8" r="4" fill="#888" stroke="#666" stroke-width="1"/>
-      <circle cx="-14" cy="8" r="4" fill="#888" stroke="#666" stroke-width="1"/>
-      <circle cx="14" cy="8" r="4" fill="#888" stroke="#666" stroke-width="1"/>
-      <circle cx="24" cy="8" r="4" fill="#888" stroke="#666" stroke-width="1"/>
-    </g>`
-  }
-};
-
-// ===== SVG CONTENT SETTER (mobile-compatible, no innerHTML on SVG) =====
-function setSVGContent(element, svgString) {
-  while (element.firstChild) element.removeChild(element.firstChild);
-  if (!svgString) { element.style.display = 'none'; return; }
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(
-    '<svg xmlns="http://www.w3.org/2000/svg">' + svgString + '</svg>',
-    'image/svg+xml'
-  );
-  const parsed = doc.documentElement;
-  while (parsed.firstChild) {
-    element.appendChild(document.importNode(parsed.firstChild, true));
-  }
-  element.style.display = '';
-}
-
-function updateSVGCosmetics() {
-  const eq = S.wardrobe.equipped;
-  const container = document.getElementById('poop-container');
-
-  // Apply skin class
-  container.className = S.skinClass || '';
-
-  // Update skin gradient on arms
-  const skinId = eq.skin;
-  let gradRef = 'url(#poopGrad)';
-  if (skinId === 'golden') gradRef = 'url(#goldGrad)';
-  else if (skinId === 'neon') gradRef = 'url(#neonGrad)';
-  else if (skinId === 'diamond_skin') gradRef = 'url(#diamondGrad)';
-
-  document.querySelectorAll('.poop-arm, .poop-hand').forEach(el => {
-    el.setAttribute(el.tagName === 'circle' ? 'fill' : 'stroke', gradRef);
-  });
-
-  // Hat
-  const hatG = document.getElementById('svg-hat');
-  if (eq.hat && SVG_COSMETICS.hat[eq.hat]) {
-    setSVGContent(hatG, SVG_COSMETICS.hat[eq.hat]);
-  } else { setSVGContent(hatG, null); }
-
-  // Glasses
-  const glassesG = document.getElementById('svg-glasses');
-  const defaultEyes = document.getElementById('svg-eyes-default');
-  if (eq.glasses && SVG_COSMETICS.glasses[eq.glasses]) {
-    setSVGContent(glassesG, SVG_COSMETICS.glasses[eq.glasses]);
-    if (eq.glasses === 'vr') {
-      defaultEyes.style.display = 'none';
-    } else {
-      defaultEyes.style.display = '';
-    }
-  } else {
-    setSVGContent(glassesG, null);
-    defaultEyes.style.display = '';
-  }
-
-  // Costume
-  const costFront = document.getElementById('svg-costume-front');
-  if (eq.costume && SVG_COSMETICS.costume[eq.costume]) {
-    setSVGContent(costFront, SVG_COSMETICS.costume[eq.costume]);
-  } else { setSVGContent(costFront, null); }
-
-  // Item
-  const itemG = document.getElementById('svg-item');
-  if (eq.item && SVG_COSMETICS.item[eq.item]) {
-    setSVGContent(itemG, SVG_COSMETICS.item[eq.item]);
-  } else { setSVGContent(itemG, null); }
-
-  // Shoes
-  const shoesG = document.getElementById('svg-shoes');
-  if (eq.shoes && SVG_COSMETICS.shoes[eq.shoes]) {
-    setSVGContent(shoesG, SVG_COSMETICS.shoes[eq.shoes]);
-  } else { setSVGContent(shoesG, null); }
-}
-
 // ===== COMPUTED =====
 function tapPower() {
   let base = 1 + getLevel('tap_power');
@@ -731,27 +358,28 @@ function handleTap(e) {
   initAudio();
   if (!musicStarted) startMusic();
 
-  const container = document.getElementById('poop-container');
-  container.classList.remove('tapped', 'tap-glow');
-  void container.offsetWidth;
+  const el = document.getElementById('poop');
+  el.classList.remove('tapped', 'crit');
+  void el.offsetWidth;
 
   let amount = tapPower();
   let isCrit = Math.random() < critChance();
   if (isCrit) {
     amount *= critMulti();
+    el.classList.add('crit');
     playCrit();
   } else {
     playPop();
   }
-  container.classList.add('tapped');
-  if (isCrit) container.classList.add('tap-glow');
-  setTimeout(() => { container.classList.remove('tapped'); container.classList.remove('tap-glow'); }, 150);
+  el.classList.add('tapped');
+  setTimeout(() => el.classList.remove('tapped'), 80);
 
   S.coins += amount;
   S.totalEarned += amount;
   S.totalTaps++;
 
-  const rect = container.getBoundingClientRect();
+  // Float text
+  const rect = document.getElementById('poop-container').getBoundingClientRect();
   const touch = e.touches ? e.touches[0] : e;
   spawnFloat(touch.clientX || rect.left + rect.width / 2, touch.clientY || rect.top, amount, isCrit);
   spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
@@ -894,14 +522,16 @@ function renderWardrobe() {
 
 function wardAction(cat, id, cost) {
   if (S.wardrobe.owned[id]) {
+    // Toggle equip
     if (S.wardrobe.equipped[cat] === id) {
       delete S.wardrobe.equipped[cat];
-      if (cat === 'skin') { S.skinClass = ''; }
+      if (cat === 'skin') { S.skinClass = ''; document.getElementById('poop-container').className = ''; }
     } else {
       S.wardrobe.equipped[cat] = id;
       if (cat === 'skin') {
         const item = WARDROBE.skin.find(i => i.id === id);
         S.skinClass = item.skinClass;
+        document.getElementById('poop-container').className = item.skinClass;
       }
     }
   } else if (S.coins >= cost) {
@@ -911,12 +541,33 @@ function wardAction(cat, id, cost) {
     if (cat === 'skin') {
       const item = WARDROBE.skin.find(i => i.id === id);
       S.skinClass = item.skinClass;
+      document.getElementById('poop-container').className = item.skinClass;
     }
     playBuy();
   }
-  updateSVGCosmetics();
+  updateCosmetics();
   renderWardrobe();
   updateDisplay();
+}
+
+function updateCosmetics() {
+  const eq = S.wardrobe.equipped;
+  const getEmoji = (cat) => {
+    if (!eq[cat]) return '';
+    const items = WARDROBE[cat];
+    const item = items.find(i => i.id === eq[cat]);
+    return item ? item.emoji : '';
+  };
+  document.getElementById('poop-hat').textContent = getEmoji('hat');
+  document.getElementById('poop-glasses').textContent = getEmoji('glasses');
+  document.getElementById('poop-costume').textContent = getEmoji('costume');
+  document.getElementById('poop-item').textContent = getEmoji('item');
+  document.getElementById('poop-shoes').textContent = getEmoji('shoes');
+  if (S.skinClass) {
+    document.getElementById('poop-container').className = S.skinClass;
+  } else {
+    document.getElementById('poop-container').className = '';
+  }
 }
 
 // ===== RENDER STATS =====
@@ -961,7 +612,7 @@ function doPrestige() {
   S.prestigeCount = prestigeCount;
   S.prestigeMulti = prestigeMulti;
   S.startTime = startTime;
-  updateSVGCosmetics();
+  updateCosmetics();
   updateDisplay();
   saveGame();
 }
@@ -980,12 +631,14 @@ function gameLoop() {
   const dt = (now - lastTick) / 1000;
   lastTick = now;
 
+  // Passive income
   const passive = passivePerSec() * dt;
   if (passive > 0) {
     S.coins += passive;
     S.totalEarned += passive;
   }
 
+  // Auto clicker
   const auto = autoClicksPerSec() * dt * tapPower();
   if (auto > 0) {
     S.coins += auto;
@@ -1014,8 +667,10 @@ function loadGame() {
     if (!S.wardrobe.owned) S.wardrobe.owned = {};
     if (!S.wardrobe.equipped) S.wardrobe.equipped = {};
 
+    // Offline earnings
     const offlineTime = (Date.now() - S.lastSave) / 1000;
     if (offlineTime > 60) {
+      // Recalculate passive per sec from saved state
       let ppm = 0;
       UPGRADES.filter(u => u.perMin).forEach(u => {
         ppm += (u.perMin * (S.upgrades[u.id] || 0));
@@ -1029,7 +684,7 @@ function loadGame() {
       }
     }
 
-    updateSVGCosmetics();
+    updateCosmetics();
     updateDisplay();
   } catch(e) {}
 }
@@ -1049,206 +704,16 @@ function showOfflineModal(earned, seconds) {
 // ===== INIT =====
 loadGame();
 updateDisplay();
-updateSVGCosmetics();
 requestAnimationFrame(gameLoop);
 setInterval(saveGame, 15000);
+// Save on close/hide
 window.addEventListener('beforeunload', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
 
-
-
+// PWA service worker registration (basic)
 if ('serviceWorker' in navigator) {
   // No SW file needed for basic PWA install prompt
 }
-
-// ===== CANVAS ANIMATED BACKGROUND =====
-(function() {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H;
-
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  // Stars
-  const STAR_COUNT = 120;
-  const stars = [];
-  for (let i = 0; i < STAR_COUNT; i++) {
-    stars.push({
-      x: Math.random() * 2000,
-      y: Math.random() * 2000,
-      r: Math.random() * 1.8 + 0.3,
-      color: ['#ffffff','#aaccff','#cc88ff','#88ddff'][Math.floor(Math.random()*4)],
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.5 + Math.random() * 1.5
-    });
-  }
-
-  // Neon lines (synthwave style)
-  const NEON_COUNT = 4;
-  const neonLines = [];
-  for (let i = 0; i < NEON_COUNT; i++) {
-    neonLines.push({
-      y: H + Math.random() * H,
-      angle: (Math.random() - 0.5) * 0.3,
-      speed: 0.3 + Math.random() * 0.5,
-      color: ['#ff00ff','#00ffff','#ff0088','#00ff88'][i % 4],
-      width: 1 + Math.random()
-    });
-  }
-
-  // Floating particles
-  const PART_COUNT = 18;
-  const particles = [];
-  for (let i = 0; i < PART_COUNT; i++) {
-    particles.push({
-      x: Math.random() * 2000,
-      y: Math.random() * 2000,
-      r: 1.5 + Math.random() * 3,
-      color: ['#ff00ff','#00ffff','#00ff88','#ff0088','#8800ff','#ffaa00'][Math.floor(Math.random()*6)],
-      speedY: 0.2 + Math.random() * 0.6,
-      wobblePhase: Math.random() * Math.PI * 2,
-      wobbleAmp: 0.3 + Math.random() * 0.8,
-      wobbleSpeed: 0.5 + Math.random() * 1
-    });
-  }
-
-  // Horizon line
-  const horizonY = 0.78;
-
-  let lastFrame = 0;
-  const FRAME_INTERVAL = 1000 / 30; // 30fps cap
-
-  function draw(timestamp) {
-    requestAnimationFrame(draw);
-    if (timestamp - lastFrame < FRAME_INTERVAL) return;
-    lastFrame = timestamp;
-
-    const t = timestamp * 0.001;
-
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#0a0015');
-    grad.addColorStop(0.5, '#120828');
-    grad.addColorStop(1, '#1a0a2e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Horizon glow
-    const hY = H * horizonY;
-    const hGlow = ctx.createRadialGradient(W * 0.5, hY, 0, W * 0.5, hY, W * 0.6);
-    hGlow.addColorStop(0, 'rgba(255,0,255,0.08)');
-    hGlow.addColorStop(0.5, 'rgba(255,0,100,0.03)');
-    hGlow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = hGlow;
-    ctx.fillRect(0, 0, W, H);
-
-    // Horizon line
-    ctx.save();
-    ctx.globalAlpha = 0.3 + Math.sin(t * 0.5) * 0.1;
-    for (let g = 3; g >= 0; g--) {
-      ctx.beginPath();
-      ctx.moveTo(0, hY);
-      ctx.lineTo(W, hY);
-      ctx.strokeStyle = '#ff00ff';
-      ctx.lineWidth = 1 + g * 2;
-      ctx.globalAlpha = (0.3 + Math.sin(t * 0.5) * 0.1) * (g === 0 ? 1 : 0.15 / g);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // Grid lines below horizon (synthwave perspective)
-    ctx.save();
-    ctx.globalAlpha = 0.06;
-    ctx.strokeStyle = '#ff00ff';
-    ctx.lineWidth = 1;
-    const gridCount = 12;
-    for (let i = 1; i <= gridCount; i++) {
-      const ratio = i / gridCount;
-      const yy = hY + (H - hY) * ratio * ratio;
-      ctx.beginPath();
-      ctx.moveTo(0, yy);
-      ctx.lineTo(W, yy);
-      ctx.stroke();
-    }
-    // Vertical perspective lines
-    const vanishX = W * 0.5;
-    for (let i = -6; i <= 6; i++) {
-      const bx = vanishX + i * (W * 0.15);
-      ctx.beginPath();
-      ctx.moveTo(vanishX, hY);
-      ctx.lineTo(bx, H);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // Stars
-    for (const s of stars) {
-      const sx = s.x % W;
-      const sy = s.y % H;
-      const alpha = 0.4 + 0.6 * Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
-      ctx.beginPath();
-      ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = s.color;
-      ctx.globalAlpha = Math.max(0.1, Math.min(1, alpha * 0.7));
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    // Neon lines floating upward
-    for (const nl of neonLines) {
-      nl.y -= nl.speed;
-      if (nl.y < -20) nl.y = H + 20 + Math.random() * 100;
-
-      const x1 = -50;
-      const x2 = W + 50;
-      const y1 = nl.y - nl.angle * W * 0.5;
-      const y2 = nl.y + nl.angle * W * 0.5;
-
-      // Glow layers
-      for (let g = 3; g >= 0; g--) {
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = nl.color;
-        ctx.lineWidth = nl.width + g * 4;
-        ctx.globalAlpha = g === 0 ? 0.6 : 0.05;
-        ctx.stroke();
-      }
-    }
-    ctx.globalAlpha = 1;
-
-    // Floating particles
-    for (const p of particles) {
-      p.y -= p.speedY;
-      p.wobblePhase += p.wobbleSpeed * 0.016;
-      const px = (p.x + Math.sin(p.wobblePhase) * p.wobbleAmp * 30) % W;
-      if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
-
-      // Glow
-      const grd = ctx.createRadialGradient(px, p.y, 0, px, p.y, p.r * 4);
-      grd.addColorStop(0, p.color);
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.globalAlpha = 0.25;
-      ctx.fillStyle = grd;
-      ctx.fillRect(px - p.r * 4, p.y - p.r * 4, p.r * 8, p.r * 8);
-
-      // Core
-      ctx.globalAlpha = 0.8;
-      ctx.beginPath();
-      ctx.arc(px, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  requestAnimationFrame(draw);
-})();
 </script>
 </body>
 </html>
