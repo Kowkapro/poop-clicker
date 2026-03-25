@@ -50,13 +50,13 @@ body{display:flex;flex-direction:column}
 .nav-btn.active{color:#ff00ff}
 .nav-btn .icon{font-size:22px;display:block;margin-bottom:2px}
 /* Upgrade cards */
-.upgrade-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all .2s;position:relative;overflow:hidden}
+.upgrade-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;padding-right:60px;margin-bottom:10px;display:flex;align-items:center;gap:10px;transition:all .2s;position:relative;overflow:visible;min-height:70px}
 .upgrade-card.affordable{border-color:rgba(0,255,100,.3);box-shadow:0 0 15px rgba(0,255,100,.1)}
-.upgrade-card .emoji{font-size:36px;flex-shrink:0}
-.upgrade-card .info{flex:1;min-width:0}
-.upgrade-card .name{font-size:14px;font-weight:700}
-.upgrade-card .desc{font-size:11px;color:#aaa;margin-top:2px}
-.upgrade-card .cost{font-size:13px;color:#ffd700;margin-top:4px;font-weight:700}
+.upgrade-card .emoji{font-size:30px;flex-shrink:0;width:36px;text-align:center}
+.upgrade-card .info{flex:1;min-width:0;overflow:visible}
+.upgrade-card .name{font-size:13px;font-weight:700;word-wrap:break-word;line-height:1.2}
+.upgrade-card .desc{font-size:10px;color:#aaa;margin-top:2px;word-wrap:break-word;line-height:1.3}
+.upgrade-card .cost{font-size:13px;color:#ffd700;margin-top:4px;font-weight:700;word-wrap:break-word}
 .upgrade-card .level{position:absolute;top:8px;right:10px;font-size:11px;color:#888;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:10px}
 .section-title{font-size:16px;font-weight:800;margin:15px 0 8px;padding-left:5px;color:#ff00ff;text-transform:uppercase;letter-spacing:1px}
 .section-title:first-child{margin-top:5px}
