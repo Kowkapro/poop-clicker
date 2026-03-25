@@ -1059,19 +1059,15 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) saveG
 // Reliable tap/click handlers (works in Telegram WebView)
 (function() {
   const pc = document.getElementById('poop-container');
-  let lastTapTime = 0;
-  function onTap(e) {
+  let lastTouchTime = 0;
+  pc.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    e.stopPropagation();
-    const now = Date.now();
-    if (now - lastTapTime < 50) return; // debounce
-    lastTapTime = now;
+    lastTouchTime = Date.now();
     handleTap(e);
-  }
-  pc.addEventListener('touchstart', onTap, { passive: false });
-  pc.addEventListener('click', function(e) {
-    if (Date.now() - lastTapTime < 300) return; // skip if touch already handled
-    onTap(e);
+  }, { passive: false });
+  pc.addEventListener('mousedown', function(e) {
+    if (Date.now() - lastTouchTime < 400) return; // skip if touch already fired
+    handleTap(e);
   });
 
   const gp = document.getElementById('golden-poop');
